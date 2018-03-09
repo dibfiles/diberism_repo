@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Stickman DayZ 3.0</title> 
+</head>
+<body onload="start()">
+<h1 style="margin-top:200px; margin-left:500px; position:fixed; display:none;" id="gameOverDisp">Game Over!</h1>
+<button style="margin-top:240px; margin-left:500px; position:fixed; display:none;" id="resetBtn" onclick="reset()">Play again?</button>
+
+
+
+<script>
+
+var health = 100;
+var w = window;
+var then = Date.now();
+requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+var canv = document.createElement("canvas");
+var c = canv.getContext("2d");
+canv.width = 1000;
+canv.height = 500;
+document.body.appendChild(canv);
+
+var goldforest = new Image();
+goldforest.src="http://diberism.weebly.com/uploads/6/8/6/2/68621527/gold-forest.png";
+var bestforest = new Image();
+bestforest.src="http://diberism.weebly.com/uploads/6/8/6/2/68621527/best-forest.png";
+var bg = new Image();
+bg.src="http://jackdib.weebly.com/uploads/6/8/6/2/68621527/trees.png";
+var stimg = new Image();
+stimg.src="http://jackdib.weebly.com/uploads/6/8/6/2/68621527/stickman.png";
+var houseimg = new Image();
+var knifeimg = new Image();
+knifeimg.src = "http://publish.lycos.com/dibfiles/wp-content/uploads/2017/10/knife.png";
+
+var knifeAttackImage = new Image();
+knifeAttackImage.src="http://publish.lycos.com/dibfiles/wp-content/uploads/2017/10/knifeAttackImage.png";
+
+var stickman = {
+x : 50,
+y : 50,
+ready : true
+
+}
+
+var knife = {
+x : 400,
+y : 400,
+ready : false,
+active : false,
+used : false
+
+}
+
+var info = {
+houses : 2,
+isHouse : true,
+housesrc : 'http://jackdib.weebly.com/uploads/6/8/6/2/68621527/house.png',
+shelter : true,
+zombies : 2,
+mseconds : 0,
+seconds : 0,
+minutes : 0,
+exploding : false
+}
+
+var count = { ucount : 0, dcount : 0, lcount : 0, rcount : 0 };
+
+houseimg.src=info.housesrc;
+
+var house = {};
+for(var i = 1; i <= info.houses; i++) { house[i] = {
+x : 200,
+y : 20
+}
+
+
+}
+
+var expimg = new Image();
+expimg.src = "http://publish.lycos.com/dibfiles/wp-content/uploads/2017/10/stickmanShield.png";
+
+var zombieimg = new Image();
+zombieimg.src="http://publish.lycos.com/dibfiles/wp-content/uploads/2017/10/zombie.png";
+var zombie = {};
+for(var i = 1; i <= info.zombies; i++) { zombie[i] = {
+x : 50,
+y : 50,
+speed : 0.5,
+ready : true
+}
+
+
+}
+
+
+
+
+function newMap() {
+
+
+var randnm = Math.random();
+if (randnm >= 0.5 && randnm < 0.9) { info.isHouse = true; knife.ready=true; }
+else if (randnm >= 0.9) { info.isHouse=true; info.houses = 1;  }
+else if (randnm < 0.5 && randnm > 0.3) { info.isHouse=false; info.houses = 1;  }
+else { info.isHouse=false;  info.houses = 2; }
+
+for(var i = 1; i <= info.houses; i++) {
+house[i].x = Math.random()*400;
+house[i].y = Math.random()*400;
+}
+
+for(var i = 1; i <= info.zombies; i++) {
+zombie[i].ready=true;
+zombie[i].x = Math.random()*500;
+zombie[i].y = Math.random()*500;
+}
+
+knife.x = Math.random()*700;
+knife.y = Math.random()*700;
+knife.ready=true;
+knife.used=false;
+
+}
+
+
+var keysDown = {};
+
+addEventListener("keydown", function(e) {
+
+
+keysDown[e.keyCode || e.which] = true;
+}, false);
+
+addEventListener("keyup", function(e) {
+delete keysDown[e.keyCode || e.which];
+}, false)
+
+
+var update = function(modifier) {
+
+
+if (38 in keysDown) { // Up
+stickman.y-=10;
+}
+if (40 in keysDown) { // Down
+stickman.y+=10;
+}
+if (37 in keysDown) { // left
+stickman.x-=10;
+}
+if (39 in keysDown) { // Right
+stickman.x+=10;
+}
+
+if (87 in keysDown) { // W
+
+}
+if (65 in keysDown) { // A
+
+}
+if (83 in keysDown) { // S
+
+}
+if (68 in keysDown) { // D
+
+}
+
+
+if (32 in keysDown) { // SpaceBar
+info.exploding = true;
+setTimeout(stopExplode, 2000);
+
+}
+
+if (192 in keysDown) { // tilda
+info.zombies = 0;
+var marq = document.createElement("MARQUEE");
+document.body.appendChild(marq);
+marq.innerHTML = "Jdib";
+}
+
+
+if (stickman.y>=canv.height) { count.dcount++; if (count.ucount>0) { count.ucount--; }; stickman.y = 2; newMap(); }
+if (stickman.y < 0) { count.ucount++; if (count.dcount>0) { count.dcount--; }; stickman.y+=canv.height; newMap(); }
+if (stickman.x>=canv.width) { count.rcount++; if (count.lcount>0) { count.lcount--; }; stickman.x = 2; newMap();}
+if (stickman.x < 0) { count.lcount++; if (count.rcount>0) { count.rcount--; }; stickman.x+=canv.width; newMap();}
+
+for (var i = 1; i <=info.houses; i++) {
+if (stickman.x <= (house[i].x + 300)
+&& house[i].x <= (stickman.x + 55)
+&& stickman.y <= (house[i].y + 200)
+&& house[i].y <= (stickman.y + 70)
+&& info.isHouse == true
+
+
+
+) {
+
+info.shelter = true;
+c.fillStyle = "green";
+
+if (health>0 && health<100) { health+=0.5; }
+
+c.fillRect(0, 0, canv.width, canv.height);
+
+}
+else {
+c.clearRect(0, 0, canv.width, canv.height);
+}
+
+}
+
+
+
+info.mseconds++;
+if (info.mseconds == 60) { info.mseconds=0; info.seconds+=1 }
+if (info.seconds == 60) { info.seconds=0; info.minutes+=1 }
+document.getElementById("disphealth").innerHTML = health+"%";
+
+for (var i = 1; i <=info.zombies; i++) {
+zombie[i].speed+=0.0025;
+}
+
+
+for (var i = 1; i <=info.zombies; i++) {
+if (zombie[i].x <= (stickman.x+69)
+&& stickman.x <= (zombie[i].x+69)
+&& zombie[i].y <= (stickman.y+133)
+&& info.exploding==false
+&& stickman.y <= (zombie[i].y+133)
+&& knife.active==false
+
+) {
+
+c.fillStyle = "red";
+if (health>0) { health--; }
+c.fillRect(0, 0, canv.width, canv.height);
+knife.ready=true;
+knife.used=false;
+}
+
+}
+
+if (health<=0) {
+
+document.getElementById("resetBtn").innerHTML = "Your time was: "+info.minutes+" : "+info.seconds+" : "+info.mseconds+". Play again?";
+
+document.getElementById("gameOverDisp").style.display="inline";
+document.getElementById("resetBtn").style.display="inline";
+requestAnimationFrame = null;
+}
+
+for (var i = 1; i <=info.zombies; i++) {
+if (zombie[i].x>stickman.x) {
+zombie[i].x-=zombie[i].speed;
+}
+
+if (stickman.x>zombie[i].x) {
+zombie[i].x+=zombie[i].speed;
+}
+
+if (stickman.y>zombie[i].y) {
+zombie[i].y+=zombie[i].speed;
+}
+
+if (zombie[i].y>stickman.y) {
+zombie[i].y-=zombie[i].speed;
+}
+
+
+
+}
+
+
+
+if (knife.x <= (stickman.x+57)
+&& stickman.x <= (knife.x+57)
+&& knife.y <= (stickman.y+82)
+&& stickman.y <= (knife.y+82)
+
+) {
+knife.ready=false;
+knife.active=true;
+
+}
+
+for (var i = 1; i <=info.zombies; i++) {
+if (zombie[i].x <= (stickman.x+69)
+&& stickman.x <= (zombie[i].x+69)
+&& zombie[i].y <= (stickman.y+133)
+&& info.exploding==false
+&& stickman.y <= (zombie[i].y+133)
+&& knife.active==true
+&& knife.used==false
+) {
+zombie[i].ready=false;
+zombie[i].x=3000;
+knife.used=true;
+knife.ready=false;
+knife.active=false;
+}
+}
+
+
+
+
+
+
+}
+
+
+var draw = function() {
+c.drawImage(bg, 0, 0);
+if(count.ucount>5 || count.dcount>5 || count.lcount>5 || count.rcount>5) {
+c.drawImage(goldforest, 0, 0);
+}
+
+if(count.ucount>10 || count.dcount>10 || count.lcount>10 || count.rcount>10) {
+c.drawImage(bestforest, 0, 0);
+}
+
+if(stickman.ready && info.exploding!=true && knife.active!=true) {
+c.drawImage(stimg, stickman.x, stickman.y);
+}
+
+if (info.exploding==true) {
+c.drawImage(expimg, stickman.x, stickman.y);
+}
+
+if (knife.active==true) { c.drawImage(knifeAttackImage, stickman.x, stickman.y); }
+
+if (knife.ready==true) {
+c.drawImage(knifeimg, knife.x, knife.y);
+}
+
+if(info.isHouse) {
+for(var i = 1; i <= info.houses; i++) {
+c.drawImage(houseimg, house[i].x, house[i].y);
+}
+}
+
+for(var i = 1; i <= info.zombies; i++) {
+if (zombie[i].ready) { c.drawImage(zombieimg, zombie[i].x, zombie[i].y); }
+}
+
+
+}
+
+
+var mainLoop = function() {
+var now = Date.now();
+var delta = now - then;
+update(delta / 1000);
+draw();
+then = now;
+
+requestAnimationFrame(mainLoop);
+}
+
+function start() {
+
+
+
+mainLoop();
+var then = Date.now();
+for(var i = 1; i <= info.houses; i++) {
+house[i].x = Math.random()*400;
+house[i].y = Math.random()*400;
+}
+for(var i = 1; i <= info.zombies; i++) { 
+zombie[i].x = Math.random()*600;
+zombie[i].y = Math.random()*600;
+}
+
+}
+
+
+
+function stop() { requestAnimationFrame = null; }
+function reset() { 
+document.getElementById("gameOverDisp").style.display="none";
+document.getElementById("resetBtn").style.display="none";
+
+health = 100;
+
+requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame; window.location.reload();
+}
+
+function help() {
+document.body.innerHTML = "<h1>Stickman DayZ 2.0!</h1>" +
+"\n<h3>How to play: </h3>" +
+"\n<h4>Use the arrow keys to move<h4>\n" +
+"<h4>The goal of the game is to survive as long as possible</h4>" +
+"<h4>The houses heal your health and keeps you safe from the lightning zombies</h4>" +
+"<h10>created by JDib and the Dib Team</h10>";
+}
+
+function stopExplode() { info.exploding=false; }
+</script>
+<h1 style="margin-top:-500px; margin-left:1050px; " id="disphealth">100%</h1>
+
+<button class="help" onclick="help()" >Help</button>
+
+<style>
+#disphealth {
+color: green;
+
+}
+
+.help {
+margin-top:500px;
+
+}
+
+</style>
+</body>
+</html>

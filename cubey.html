@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cubey</title>
+</head>
+<body>
+<h2 id="dispLevel">Level 1</h2>
+<a href="http://www.diberism.weebly.com"><img src="http://diberism.weebly.com/uploads/6/8/6/2/68621527/diberismlogo.jpg" id="dibLogo" style="width:50px; position:fixed;"></img></a>
+<h1 style="margin-top:200px; margin-left:500px; position:fixed; display:none;" id="dispYouWin">You Win!</h1>
+<button style="margin-top:240px; margin-left:500px; position:fixed; display:none;" id="nextLevelBtn" onclick="nextLevel()">Next Level</button>
+<button style="width:350px; height:350px; margin-top:50px; position:fixed; margin-left:200px; border-radius:50%;" onclick="start()" id="startBtn">Start</button>
+<button style="width:300px; height:300px; margin-top:250px; position:fixed; margin-left:500px; border-radius:50%;" id="helpBtn" onclick="help()">Help</button>
+
+<h1 style="margin-top:200px; margin-left:500px; position:fixed; display:none;" id="gameOverDisp">Game Over!</h1>
+<button style="margin-top:240px; margin-left:500px; position:fixed; display:none;" id="resetBtn" onclick="reset()">Play again?</button>
+
+<script>
+var w = window;
+var then = Date.now();
+requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+var canv = document.createElement("canvas");
+var c = canv.getContext("2d");
+canv.width = 1000;
+canv.height = 500;
+document.body.appendChild(canv);
+
+var explosionImage = new Image();
+explosionImage.src = "http://images.clipartpanda.com/explosion-clipart-clipart-explosion-52fe.png";
+
+var bgReady = false;
+var bgImage = new Image();
+bgImage.onload = function () {
+	bgReady = true;
+};
+bgImage.src = "https://www.drumstick.com/assets/images/products/photos/nestle-dibs-crunch-large.jpg";
+
+
+var cubeyImage = new Image();
+cubeyImage.onload = function () {
+	cubey.ready = true;
+};
+cubeyImage.src = "http://diberism.weebly.com/uploads/6/8/6/2/68621527/cubey.png";
+var cubeysrc = "http://en.dwhwiki.info/_media/3dgraphics/cube_128.png";
+var cubey = {
+speed: 100,
+x: 0,
+y: 0,
+ready: false,
+level : 1
+}
+
+var info = {
+badguys : 1,
+badguydirections : ["up", "down", "left", "right"],
+badguydirection : null,
+villiandirection : null,
+villianhit : false,
+badguyhit : false
+}
+
+// Bad Guy
+var badguy = {};
+for (var i = 1; i <=info.badguys; i++) { badguy[i] = {
+x : 0,
+y : 0,
+speed : 1
+
+}
+}
+
+
+var villiansrc = "EvilFace.png";
+var villianImage = new Image();
+villianImage.onload = function () {
+	villian.ready = true;
+};
+villianImage.src = "http://diberism.weebly.com/uploads/6/8/6/2/68621527/evilface.png";
+
+var villian = {
+speed : 1,
+x : 0,
+y : 0,
+ready: false
+}
+
+var shot = {
+x : 200,
+y : 200,
+ready : false,
+keyPressing : null
+
+}
+
+var shotImage = new Image();
+shotImage.src = "https://vignette4.wikia.nocookie.net/survivalcraftgame/images/7/7a/Bullet.png/revision/latest?cb=20151216173335";
+shotImage.style.width = "20px";
+
+var keysDown = {};
+
+addEventListener("keydown", function(e) {
+
+switch(e.keyCode || e.which) {
+case 38: shot.direction = "up";
+case 40: shot.direction = "down";
+case 37: shot.direction = "left";
+case 32: shot.direction = "right";
+}
+keysDown[e.keyCode || e.which] = true;
+}, false);
+
+addEventListener("keyup", function(e) {
+delete keysDown[e.keyCode || e.which];
+}, false)
+
+var resetGame = function() {
+cubey.x = 400;
+cubey.y = 200;
+villian.x = 32 + (Math.random() * (canv.width - 64));
+villian.y = 32 + (Math.random() * (canv.height - 64));
+if (villian.x > 150 && villian.x < 400) { resetGame(); }
+for (var i = 1; i <= info.badguys; i++) { 
+badguy[i].x = 32 + (Math.random() * (canv.width - 64));
+badguy[i].y = 32 + (Math.random() * (canv.height - 64));
+info.badguydirection = info.badguydirections[Math.floor(Math.random() * info.badguydirections.length)];
+info.villiandirection = info.badguydirections[Math.floor(Math.random() * info.badguydirections.length)];
+}
+}
+
+var update = function(modifier) {
+
+villian.x+=villian.speed;
+villian.y+=villian.speed;
+for(var i = 1; i <= info.badguys; i++) {
+badguy[i].x+=badguy[i].speed;
+badguy[i].y+=badguy[i].speed;
+}
+
+if (38 in keysDown) { // Up
+cubey.y-=15;
+}
+if (40 in keysDown) { // Down
+cubey.y+=15;
+}
+if (37 in keysDown) { // left
+cubey.x-=15;
+}
+if (39 in keysDown) { // Right
+cubey.x+=15;
+}
+
+if (87 in keysDown) { // W
+shootBullet("up");
+}
+if (65 in keysDown) { // A
+shootBullet("left");
+}
+if (83 in keysDown) { // S
+shootBullet("down");
+}
+if (68 in keysDown) { // D
+shootBullet("right");
+}
+
+
+if (32 in keysDown) { // SpaceBar
+shootBullet("right");
+}
+
+if (cubey.x <= (villian.x + 55) // cubey touches villian
+&& villian.x <= (cubey.x + 55)
+&& cubey.y <= (villian.y + 55)
+&& villian.y <= (cubey.y + 55)
+
+) {
+gameOver();
+}
+for (var i = 1; i <= info.badguys; i++) { // Cubey touches badGuy
+if (cubey.x <= (badguy[i].x + 55)
+&& badguy[i].x <= (cubey.x + 55)
+&& cubey.y <= (badguy[i].y + 55)
+&& badguy[i].y <= (cubey.y + 55)
+
+) {
+gameOver();
+}
+}
+
+if (info.badguyhit==true && info.villianhit==true) { //bullet hits villain
+youWin();
+}
+
+if (cubey.x <= 1-10) {
+cubey.x = canv.width;
+}
+
+else if (cubey.x >= canv.width+10) {
+cubey.x = 1;
+}
+if (cubey.y >= canv.height+10) {
+cubey.y = 1;
+}
+else if (cubey.y <= 1-10) {
+cubey.y = canv.height;
+}
+
+if (villian.x <= 1) {
+villian.x = canv.width;
+}
+
+else if (villian.x >= canv.width) {
+villian.x = 2;
+}
+if (villian.y >= canv.height) {
+villian.y = 2;
+}
+else if (villian.y <= 1) {
+villian.y = canv.height;
+}
+
+if (shot.x <= (villian.x + 20)
+&& villian.x <= (shot.x + 99)
+&& shot.y <= (villian.y + 20)
+&& villian.y <= (shot.y + 99)
+
+
+
+) {
+
+info.villianhit = true;
+}
+
+for (var i = 1; i <= info.badguys; i++) {
+if (shot.x <= (badguy[i].x + 55)
+&& badguy[i].x <= (shot.x + 55)
+&& shot.y <= (badguy[i].y + 55)
+&& badguy[i].y <= (shot.y + 55) 
+){
+--info.badguys;
+info.badguyhit = true;
+}
+}
+
+
+for (var i = 1; i <= info.badguys; i++) {
+  if (badguy[i].x <= 0) { badguy[i].x = canv.width; }
+  else if (badguy[i].x >= canv.width) { badguy[i].x = 1; }
+  if (badguy[i].y <= 0) { badguy[i].y = canv.height; }
+  else if (badguy[i].y >= canv.height) { badguy[i].y = 1; }
+};
+
+
+switch(info.badguydirection) {
+case "up":for (var i = 1; i <= info.badguys; i++) { badguy[i].y++; }; break;
+case "down":for (var i = 1; i <= info.badguys; i++) { badguy[i].y--; }; break;
+case "left":for (var i = 1; i <= info.badguys; i++) { badguy[i].x++; }; break;
+case "right":for (var i = 1; i <= info.badguys; i++) { badguy[i].x--; }; break;
+}
+
+switch(info.villiandirection) {
+case "up":villian.y++; break;
+case "down":villian.y--; break;
+case "left":villian.x++; break;
+case "right":villian.x--; break;
+}
+
+
+}
+
+
+var draw = function() {
+if (bgReady) {
+c.drawImage(bgImage, 0, 0);
+}
+
+if (cubey.ready) {
+c.drawImage(cubeyImage, cubey.x, cubey.y);
+}
+
+if (villian.ready) {
+if (info.villianhit == false) {
+c.drawImage(villianImage, villian.x, villian.y);
+}
+else {
+c.drawImage(explosionImage, villian.x, villian.y);
+}
+if (info.badguyhit==false) {
+for (var i = 1; i <=info.badguys; i++) {
+c.drawImage(villianImage, badguy[i].x, badguy[i].y);
+}
+}
+else {
+for (var i = 1; i <=1; i++) {
+c.drawImage(explosionImage, badguy[i].x, badguy[i].y);
+}
+}
+
+}
+
+if (shot.ready) {
+c.drawImage(shotImage, shot.x, shot.y);
+switch(shot.direction) {
+case "left":shot.x-=15; break;
+case "right":shot.x+=15; break;
+case "up":shot.y-=15; break;
+case "down":shot.y+=15; break;
+}
+}
+}
+
+
+var mainLoop = function() {
+var now = Date.now();
+var delta = now - then;
+update(delta / 1000);
+draw();
+then = now;
+
+requestAnimationFrame(mainLoop);
+}
+
+function start() {
+document.getElementById("dibLogo").style.display = "none";
+document.getElementById("startBtn").style.display = "none";
+document.getElementById("helpBtn").style.display = "none";
+resetGame();
+mainLoop();
+var then = Date.now();
+}
+
+
+function gameOver() {
+stop();
+document.getElementById("gameOverDisp").style.display = "inline";
+document.getElementById("resetBtn").style.display = "inline";
+
+}
+
+function shootBullet(direction) {
+shot.x = cubey.x;
+shot.y = cubey.y;
+shot.direction = direction;
+shot.ready = true;
+}
+
+function youWin() {
+document.getElementById("dispYouWin").style.display = "inline";
+document.getElementById("nextLevelBtn").style.display = "inline";
+stop();
+}
+
+function nextLevel() {
+info.badguyhit = false;
+info.badguys = 1;
+info.villianhit = false;
+for (var i = 1; i <= info.badguys; i++) { badguy[i].speed++; }
+requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
+villian.speed++;
+cubey.level++;
+document.getElementById("dispLevel").innerHTML = "Level "+cubey.level;
+document.getElementById("dispYouWin").style.display = "none";
+document.getElementById("nextLevelBtn").style.display = "none";
+start();
+}
+function stop() { requestAnimationFrame = null; }
+function reset() { requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame; window.location.reload();}
+function help() {
+document.body.innerHTML = "<button onclick='reset()'>Back</button>" +
+"<h1>How to play?</h1>" +
+"<h4>Use the arrow keys to move and WASD to shoot in a direction</h4>" +
+"<br/><h4>The goal is to try to hit all of the enemies and get to the next level</h4>" +
+"<br/>Game by JDib and the dib team at <a href='http://www.diberism.weebly.com'>Diberism</a>"
+
+}
+</script>
+<style>
+
+</style>
+</body>
+</html>
