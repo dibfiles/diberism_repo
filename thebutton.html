@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>The Button</title>
+</head>
+<body>
+<button class="btn" id="btn" onclick="clicked()" onmouseup="mouseUp()" onmousedown="mouseDown()">
+<h1>Click Me!</h1>
+</button>
+<style>
+.btn {
+height:500px;
+width:500px;
+border-radius:50%;
+border:15px solid black;
+background-color:red;
+box-shadow: 0 20px #999;
+}
+
+.btn:hover {
+cursor:grab;
+}
+
+.btn:active {
+  background-color: #990000;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+  cursor:grabbing;
+}
+</style>
+<script>
+
+var btn = document.getElementById("btn");
+var actions = ["<button onclick='matrixBg()'>SuperHax</button>", "<p>Its a Dud!</p>", "<img src='https://m.popkey.co/290975/9MOyQ.gif'>The Atomic Bomb</img>", "<marquee scrollamount='5' onclick='celebrate()'>Click on me!</marquee>",
+"<img src='https://media.giphy.com/media/sa114GRBN6s4o/giphy.gif' onclick='blowBomb()'></img>", "<button onclick='attack()'>Attack!</button>",
+"<img src='http://icons.iconarchive.com/icons/icons8/windows-8/512/Military-Cannon-icon.png'></img><button onclick='fireCannon()'>Fire!</button>",
+"<button style='width:50px; height:50px; background-color:blue;' onclick='upDownAttack()'></button>"];
+
+
+
+
+
+function clicked() {
+document.body.innerHTML = "<button class='btn' id='btn' onclick='clicked()' onmouseup='mouseUp()' onmousedown='mouseDown()'><h1>Click Me!</h1></button>" +
+"<style>" +
+'.btn {' +
+'height:500px;' +
+'width:500px;' +
+'border-radius:50%;' +
+'border:15px solid black;' +
+'background-color:red;' +
+'box-shadow: 0 20px #999;' +
+'}' +
+'.btn:hover {' +
+'cursor:grab;' +
+'}' +
+'.btn:active {' +
+'  background-color: #990000;' +
+'  box-shadow: 0 5px #666;' +
+'  transform: translateY(4px);' +
+'  cursor:grabbing;' +
+'}' +
+'body {' +
+'background-image:url(https://www.blankparkzoo.com/20170609010442/assets/images/Blank_Park_Zoo_No_Shadow_white-tagup.svg)' +
+'}' +
+"</style>";
+document.body.style.backgroundImage = "url('https://www.blankparkzoo.com/20170609010442/assets/images/Blank_Park_Zoo_No_Shadow_white-tagup.svg')";
+var rand = actions[Math.floor(Math.random() * actions.length)];
+document.body.innerHTML+=rand;
+
+
+}
+function matrixBg() { document.body.style.backgroundImage = "url('https://vignette3.wikia.nocookie.net/matrix/images/9/9c/Matrix_Code.gif/revision/latest/scale-to-width-down/640?cb=20110306191618')" }
+function mouseDown() { btn.style.cursor = "grabbing"; }
+function mouseUp() { btn.style.cursor = "grab"; }
+function celebrate() { document.body.style.backgroundImage = "url('https://media.giphy.com/media/120ErahsQyf1q8/giphy.gif')"; }
+function blowBomb() { document.body.style.backgroundImage = "url('https://m.popkey.co/290975/9MOyQ.gif')"; }
+function attack() {
+for (var i = 1; i < 5; i++) {
+var armyManHead = document.body.appendChild(document.createElement("MARQUEE"));
+armyManHead.innerHTML = "&nbspO ";
+var armyManBody = document.body.appendChild(document.createElement("MARQUEE"));
+armyManBody.innerHTML = "~m~";
+var armyManLegs = document.body.appendChild(document.createElement("MARQUEE"));
+armyManLegs.innerHTML = "&nbsp| |";
+var armyManHead2 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManHead2.innerHTML = "&nbspO ";
+armyManHead2.direction = "right";
+var armyManBody2 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManBody2.innerHTML = "~m~";
+armyManBody2.direction = "right";
+var armyManLegs2 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManLegs2.innerHTML = "&nbsp| |";
+armyManLegs2.direction = "right";
+
+}
+}
+
+function upDownAttack() {
+for (var i = 1; i < 5; i++) {
+var armyManHead3 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManHead3.innerHTML = "&nbspO ";
+armyManHead3.direction = "up";
+var armyManBody3 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManBody3.innerHTML = "~m~";
+armyManBody3.direction = "up";
+var armyManLegs3 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManLegs3.innerHTML = "&nbsp| |";
+armyManLegs3.direction = "up";
+var armyManHead4 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManHead4.innerHTML = "&nbspO ";
+armyManHead4.direction = "down";
+var armyManBody4 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManBody4.innerHTML = "~m~";
+armyManBody4.direction = "down";
+var armyManLegs4 = document.body.appendChild(document.createElement("MARQUEE"));
+armyManLegs4.innerHTML = "&nbsp| |";
+armyManLegs4.direction = "down";
+}
+
+}
+
+function fireCannon() { 
+var cannonBallHolder = document.createElement("MARQUEE");
+document.body.appendChild(cannonBallHolder);
+cannonBallHolder.direction = "right";
+cannonBallHolder.style.width = "500px";
+cannonBallHolder.style.marginTop = "-200px";
+var cannonBall = document.createElement("IMG");
+cannonBall.style.marginTop = "-2000px";
+cannonBallHolder.appendChild(cannonBall);
+cannonBall.src = "http://simpleicon.com/wp-content/uploads/bomb.png";
+cannonBall.style.width = "50px";
+}
+</script>
+</body>
+</html>
