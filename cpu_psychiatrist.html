@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CPU psychiatrist by Jdib</title>
+</head>
+<body>
+<p id="say">Hello, how may I help you?</p>
+<br></br>
+<input id="entry"></input>
+<input type="submit" onclick="run()"></input>
+<script>
+function run() {
+sentences = ["CAN YOU STOP", "Are you sure thats what you said", "Is there anything else bothering you?", "can you repeat that", "You are a very frustrating person", "YOU ARE HURTING MY FEELING", "Is that what the problem really is?", "Go on..", "Im sorry you feel that way", "I see..", "Thats not very nice"]
+var rand = sentences[Math.floor(Math.random() * sentences.length)];
+var input=document.getElementById("entry").value;
+var say=document.getElementById("say").innerHTML += input + "<br></br>" + rand + "<br></br>"
+
+
+}
+</script>
+<style>
+#say {
+color:green;
+}
+#say:hover {
+color:red;
+}
+</style>
+</body>
+</html>
